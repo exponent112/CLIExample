@@ -1,5 +1,8 @@
 package edu.handong.csee.java.examples;
 
+import java.io.File;
+import java.io.FileFilter;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -12,6 +15,7 @@ public class Runner {
 	String path;
 	boolean verbose;
 	boolean help;
+	boolean fullpath;
 
 	public static void main(String[] args) {
 
@@ -19,25 +23,36 @@ public class Runner {
 		myRunner.run(args);
 
 	}
-
+	
 	private void run(String[] args) {
 		Options options = createOptions();
+		
+
 		
 		if(parseOptions(options, args)){
 			if (help){
 				printHelp(options);
 				return;
 			}
+			File a = new File (path);
+		
 			
 			// path is required (necessary) data so no need to have a branch.
 			System.out.println("You provided \"" + path + "\" as the value of the option p");
+			File[] files =a.listFiles();
 			
-			// TODO show the number of files in the path
+			if(fullpath){
+				for(int i=0;i<files.length;i++) {
+					System.out.println("File Name : "+files[i].getName()+ " Path :\t" +files[i].getAbsolutePath());
+				}
+			}
+			else {
+				for(int i=0;i<files.length;i++) {
+					System.out.println("File Name : "+files[i].getName()+ " Path :\t"+ path+files[i].getName() );
+				}
+			}
 			
 			if(verbose) {
-				
-				// TODO list all files in the path
-				
 				System.out.println("Your program is terminated. (This message is shown because you turned on -v option!");
 			}
 		}
@@ -49,10 +64,10 @@ public class Runner {
 		try {
 
 			CommandLine cmd = parser.parse(options, args);
-
 			path = cmd.getOptionValue("p");
 			verbose = cmd.hasOption("v");
 			help = cmd.hasOption("h");
+			fullpath = cmd.hasOption("f");
 
 		} catch (Exception e) {
 			printHelp(options);
@@ -86,7 +101,14 @@ public class Runner {
 		options.addOption(Option.builder("h").longOpt("help")
 		        .desc("Help")
 		        .build());
-
+		
+		options.addOption(Option.builder("f").longOpt("fullpath")
+				.desc("Display detailed fullpath!")
+				//.hasArg()     // this option is intended not to have an option value but just an option
+				.argName("fullpath to display")
+				//.required() // this is an optional option. So disabled required().
+				.build());
+		
 		return options;
 	}
 	
